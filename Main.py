@@ -1,105 +1,72 @@
 import pygame
 from constants import *
-import numpy as np
+from level1 import boardlvl1
+import math
 
 pygame.init()
+screen = pygame.display.set_mode(SCREENSIZE)
 timer = pygame.time.Clock()
 fps = 60
-white = (255, 255, 255)
-black = (0, 0, 0)
-grey = (180, 180, 180)
-dark_grey = (60, 60, 60)
-red = (200, 0, 0)
-orange = (255, 150, 30)
-green = (50, 255, 50)
-blue = (80, 80, 255)
-purple = (120, 80, 200)
+PI = math.pi
 
-WIDTH = 900
-HEIGHT = 520
-ROW = 21
-COL = 40
-
-player_x = WIDTH / 2
-player_y = HEIGHT / 3
+player_x = SCREENWIDTH / 2
+player_y = SCREENHEIGHT / 3
 player_speed = 0
 player_direction = 0
 
-board = []
 create_new = True
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 active = False
 score = 0
-font = pygame.font.SysFont("Arial", 30)
+font = pygame.font.SysFont('PressStart2P-Regular.ttf', 30)
 large_font = pygame.font.SysFont("Arial", 40)
-
-level1 = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,1,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-          [1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,1,1,1,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
 
 def draw_board(level):
     board_squares = []
-    for x in range(ROW + 1):
-        for y in range(COL + 1):
-            if level[x][y] == 1:
-                rect = pygame.Rect(y * 22, x * 22, 23, 23)
-                pygame.draw.rect(screen, white[(level[x][y]) - 1], rect, 0)
-                pygame.draw.rect(screen, black, rect, 1)
-                board_squares.append((rect, (x, y)))
+    for i in range(len(level)):
+        for j in range(len(level[i])):
+            if level[i][j] == 1:
+                pygame.draw.circle(screen, WHITE, (j * TILEWIDTH + (0.5 * TILEWIDTH), i * TILEHEIGHT + (0.5 * TILEWIDTH)), 4)
+            if level[i][j] == 2:
+                pygame.draw.circle(screen, WHITE, (j * TILEWIDTH + (0.5 * TILEWIDTH), i * TILEHEIGHT + (0.5 * TILEWIDTH)), 10)
+            if level[i][j] == 3:
+                pygame.draw.line(screen, BLUE, (j * TILEWIDTH + (0.5 * TILEWIDTH), i * TILEHEIGHT),
+                                 (j * TILEWIDTH + (0.5 * TILEWIDTH), i * TILEHEIGHT + TILEHEIGHT), 3)
+            if level[i][j] == 4:
+                pygame.draw.line(screen, BLUE, (j * TILEWIDTH, i * TILEHEIGHT + (0.5 * TILEHEIGHT)),
+                                 (j * TILEWIDTH + TILEWIDTH, i * TILEHEIGHT + (0.5 * TILEHEIGHT)), 3)
+            if level[i][j] == 5:
+                pygame.draw.arc(screen, BLUE, [(j * TILEWIDTH - (TILEWIDTH * 0.4)) - 2, (i * TILEHEIGHT + (0.5 * TILEHEIGHT)), TILEWIDTH, TILEHEIGHT], 0, PI / 2, 3)
+            if level[i][j] == 6:
+                pygame.draw.arc(screen, BLUE,
+                                [(j * TILEWIDTH + (TILEWIDTH * 0.5)), (i * TILEHEIGHT + (0.5 * TILEHEIGHT)), TILEWIDTH, TILEHEIGHT], PI / 2, PI,  3)
+            if level[i][j] == 7:
+                pygame.draw.arc(screen, BLUE,
+                                [(j * TILEWIDTH + (TILEWIDTH * 0.5)), (i * TILEHEIGHT - (0.4 * TILEHEIGHT)),
+                                 TILEWIDTH, TILEHEIGHT], PI, 3 + PI / 2, 3)
+            if level[i][j] == 8:
+                pygame.draw.arc(screen, BLUE,
+                                [(j * TILEWIDTH - (TILEWIDTH * 0.4)) - 1, (i * TILEHEIGHT - (0.5 * TILEHEIGHT)),
+                                 TILEWIDTH, TILEHEIGHT], 3 * PI / 2, 2 * PI, 3)
+            if level[i][j] == 9:
+                pygame.draw.line(screen, WHITE, (j * TILEWIDTH, i * TILEHEIGHT + (0.5 * TILEHEIGHT)),
+                                 (j * TILEWIDTH + TILEWIDTH, i * TILEHEIGHT + (0.5 * TILEHEIGHT)), 3)
+
     return board_squares
 
 run = True
 while run:
-    screen.fill(grey)
+    screen.fill(BLACK)
     timer.tick(fps)
 
-    board_rects_and_pos = draw_board(level1)
-
-    pacman = pygame.draw.circle(screen, white, (ball_x, ball_y), 10)
-    pygame.draw.circle(screen, black, (ball_x, ball_y), 10, 1)
+    board_rects_and_pos = draw_board(boardlvl1)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not active:
-                active = True
-                ball_y_direction = -1
-                ball_x_direction = random.choice([-1, 1])
-                score = 0
-                create_new = True
-            if event.key == pygame.K_RIGHT and active:
-                player_direction = 1
-            if event.key == pygame.K_LEFT and active:
-                player_direction = -1
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT and player_direction == 1:
-                player_direction = 0
-            if event.key == pygame.K_LEFT and player_direction == -1:
-                player_direction = 0
 
-    score_text = font.render(f'Score: {score}', True, black)
-    screen.blit(score_text, (10, 475))
+    score_text = font.render(f'Score: {score}', True, BLACK)
+    screen.blit(score_text, (SCREENWIDTH * 0.03, SCREENHEIGHT * 0.92))
 
 
     pygame.display.flip()
